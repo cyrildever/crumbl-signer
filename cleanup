@@ -1,0 +1,5 @@
+#!/bin/bash
+
+#Remove all dependencies
+rm -Rf node_modules dist package-lock.json crumbl-signer.log stdout > /dev/null
+echo "Ready for Docker"

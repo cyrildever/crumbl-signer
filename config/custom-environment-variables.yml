@@ -1,0 +1,16 @@
+http:
+  port: "HTTP_PORT"
+
+mongo:
+  username: "MONGO_USERNAME"
+  password: "MONGO_PASSWORD"
+  domain: "MONGO_DOMAIN"
+  port: "MONGO_PORT"
+  db: "MONGO_DB"
+  collection: "MONGO_COLLECTION"
+
+bootstrap:
+  url: "BOOTSTRAP_URL"
+
+signer:
+  code: "SIGNER_CODE" # TODO Keep it???
