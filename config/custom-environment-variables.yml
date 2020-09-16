@@ -11,6 +11,3 @@ mongo:
 
 bootstrap:
   url: "BOOTSTRAP_URL"
-
-signer:
-  code: "SIGNER_CODE" # TODO Keep it???

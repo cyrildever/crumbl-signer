@@ -11,9 +11,9 @@ export const sanitizeUUID = (requestIdOrToken: string): Maybe<string> => {
   }
 }
 
-export const sanitizeTransactionId = (transactionId: string): Maybe<string> => {
-  if (hashStringRegex.test(transactionId)) {
-    return Some(transactionId)
+export const sanitizeDataId = (dataId: string): Maybe<string> => {
+  if (hashStringRegex.test(dataId)) {
+    return Some(dataId)
   } else {
     return None<string>()
   }

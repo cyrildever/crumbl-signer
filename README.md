@@ -70,8 +70,8 @@ _// TODO Add RSA support._
 * `GET /uncrumbs`
 
 This endpoint deciphers the passed crumbled string if the signer had signed one or more of its crumbs.
-It expects the 4 following mandatory URI-encoded arguments in the query string: (eg. `http://localhost:4000/uncrumbs?transactionId=123456789abcdef&crumbl=9876543210fedcba[...]&verificationHash=9876543210fedcba[...]&token=12345678-90ab-cdef-1234-567890abcdef1`)
-  * `transactionId`: the Rooot blockchain transaction ID related to the crumbled string; // TODO Remove reference to Rooot ####
+It expects the 4 following mandatory URI-encoded arguments in the query string: (eg. `http://localhost:4000/uncrumbs?dataId=123456789abcdef&crumbl=9876543210fedcba[...]&verificationHash=9876543210fedcba[...]&token=12345678-90ab-cdef-1234-567890abcdef1`)
+  * `dataId`: the data ID related to the crumbled string (in hash format);
   * `crumbl`: the full crumbled string;
   * `verificationHash`: the hash of the original source (not to be confused with the initial hashered source of the crumbled string);
   * `token`: a valid token (in UUID format).
@@ -80,13 +80,13 @@ It returns a `200` status code along with the partial uncrumb as a plain text bo
 
 * `POST /crumbl`
 
-This endpoint records the transaction ID in the local database to keep track of its relation with the public key used when crumbling the data.
+This endpoint records the data ID in the local database to keep track of its relation with the public key used when crumbling the data.
 Calling it is necessary to make the crumbl decipherable in time.
 It expects the request body to be a JSON object respecting the following format:
 ```json
 {
   "requestId": "<The requestId generated through the /lastPubKey endpoint (see above)>",
-  "transactionId": "<A Rooot blockchain's transaction ID>" // TODO Remove reference to Rooot ####
+  "dataId": "<A custom ID using a hash string>"
 }
 ```
 

@@ -9,99 +9,90 @@ import * as ecies from 'ecies-geth'
 import {
   RequestSeed, insertRequest, doDecipher,
   SeedPath, isSeedPath, nextPath, updatePath,
-  TransactionRequest, insertTransaction
+  DataRequest, insertData
 } from '..'
 import { logger } from '../utils/logger'
-import { sanitizeTransactionId, sanitizeUUID } from '../utils/sanitize'
+import { sanitizeDataId, sanitizeUUID } from '../utils/sanitize'
 import { NonEmptyString } from '../utils'
-import { BootstrapClient } from './BootstrapClient'
 
 export type SignerController = Router
 
-export default (bootstrapClient: BootstrapClient, collection: mongo.Collection<RequestSeed | SeedPath | TransactionRequest>): SignerController => {
+export default (collection: mongo.Collection<DataRequest | RequestSeed | SeedPath>): SignerController => {
   const router = express.Router()
 
   /* GET lastPubKey. */
   router.get('/lastPubKey', (req, res) => {
-    const notaryId = req.header('X-Notary-ID')
-    const notaryPubKey = req.header('X-Notary-PubKey')
-    const notarySecret = req.header('X-Notary-Secret')
-    if (notaryId === undefined || notaryPubKey === undefined || notarySecret === undefined) {
+    const userId = req.header('X-User-ID')
+    const userPubKey = req.header('X-User-PubKey')
+    const userSecret = req.header('X-User-Secret')
+    if (userId === undefined || userPubKey === undefined || userSecret === undefined) {
       logger.error('All HTTP headers are mandatory')
       return res.sendStatus(412).end()
     }
-    bootstrapClient.exists({ id: notaryId, pubKey: notaryPubKey, secret: notarySecret }).then(existsNotary => {
-      if (existsNotary) {
-        const requestId = uuid()
-        collection.findOne({ type: 'SeedPath' }, (err, item) => {
-          if (err || !isSeedPath(item)) { // eslint-disable-line @typescript-eslint/strict-boolean-expressions
-            logger.error(err)
-            res.sendStatus(500).end()
-          } else {
-            const newPath = nextPath(item.lastPath)
-            const currentSeed = item.seed
-            updatePath(collection, newPath).then(r => {
+    // TODO Check existence of requesting user
+    const requestId = uuid()
+    collection.findOne({ type: 'SeedPath' }, (err, item) => {
+      if (err || !isSeedPath(item)) { // eslint-disable-line @typescript-eslint/strict-boolean-expressions
+        logger.error(err)
+        res.sendStatus(500).end()
+      } else {
+        const newPath = nextPath(item.lastPath)
+        const currentSeed = item.seed
+        updatePath(collection, newPath).then(r => {
+          if (r.result.n > 0) {
+            const rs: RequestSeed = {
+              type: 'RequestSeed',
+              requestId: requestId,
+              seed: currentSeed,
+              path: newPath
+            }
+            insertRequest(collection, rs).then(r => {
               if (r.result.n > 0) {
-                const rs: RequestSeed = {
-                  type: 'RequestSeed',
-                  requestId: requestId,
-                  seed: currentSeed,
-                  path: newPath
-                }
-                insertRequest(collection, rs).then(r => {
-                  if (r.result.n > 0) {
-                    recoverPubKey(currentSeed, newPath)
-                      .then(pubKey => {
-                        res.json({
-                          encryptionAlgorithm: crumbljs.ECIES_ALGORITHM,
-                          publicKey: pubKey.toString('hex'),
-                          requestId: requestId
-                        })
-                      }).catch(err => {
-                        logger.error(err)
-                        res.sendStatus(500).end()
-                      })
-                  } else {
-                    throw new Error('unable to insert request')
-                  }
-                }).catch(err => {
-                  logger.error(err)
-                  res.sendStatus(500).end()
-                })
+                recoverPubKey(currentSeed, newPath)
+                  .then(pubKey => {
+                    res.json({
+                      encryptionAlgorithm: crumbljs.ECIES_ALGORITHM,
+                      publicKey: pubKey.toString('hex'),
+                      requestId: requestId
+                    })
+                  }).catch(err => {
+                    logger.error(err)
+                    res.sendStatus(500).end()
+                  })
               } else {
-                throw new Error('unable to update path')
+                throw new Error('unable to insert request')
               }
             }).catch(err => {
               logger.error(err)
               res.sendStatus(500).end()
             })
+          } else {
+            throw new Error('unable to update path')
           }
+        }).catch(err => {
+          logger.error(err)
+          res.sendStatus(500).end()
         })
-      } else {
-        res.sendStatus(412).end()
       }
-    }).catch(err => {
-      logger.error(err)
-      res.sendStatus(412).end()
     })
   })
 
   /* GET uncrumbs. */
   router.get('/uncrumbs', (req, res, _) => {
-    if ('transactionId' in req.query && 'crumbl' in req.query && 'verificationHash' in req.query && 'token' in req.query) {
+    if ('dataId' in req.query && 'crumbl' in req.query && 'verificationHash' in req.query && 'token' in req.query) {
       collection
-        .findOne({ transactionId: req.query.transactionId } as TransactionRequest)
+        .findOne({ dataId: req.query.dataId } as DataRequest)
         .then(item => {
           if (item == null) {
             res.sendStatus(404).end()
             return
           }
           if (NonEmptyString.is(req.query.crumbl) && NonEmptyString.is(req.query.verificationHash) && sanitizeUUID(req.query.token as string).isSome()) {
-            decipherCrumbl(collection, item as TransactionRequest, req.query.crumbl, req.query.verificationHash)
+            decipherCrumbl(collection, item as DataRequest, req.query.crumbl, req.query.verificationHash)
               .then(result => {
                 if (result.isSome()) {
                   // TODO Record token in special collection (to get paid eventually) ######
-                  logger.info('Returning some partial uncrumbs for transactionId [' + (req.query.transactionId as string) + '] to ' + req.ip + ' for token ' + (req.query.token as string))
+                  logger.info('Returning some partial uncrumbs for dataId [' + (req.query.dataId as string) + '] to ' + req.ip + ' for token ' + (req.query.token as string))
                   res.json(result.some())
                 } else {
                   res.sendStatus(404).end()
@@ -126,21 +117,21 @@ export default (bootstrapClient: BootstrapClient, collection: mongo.Collection<R
 
   /* POST crumbl. */
   router.post('/crumbl', (req, res, _) => {
-    if ('transactionId' in req.body && 'requestId' in req.body) {
-      const transactionId = sanitizeTransactionId(req.body.transactionId)
+    if ('dataId' in req.body && 'requestId' in req.body) {
+      const dataId = sanitizeDataId(req.body.dataId)
       const requestId = sanitizeUUID(req.body.requestId)
-      if (!transactionId.isSome() || !requestId.isSome()) {
+      if (!dataId.isSome() || !requestId.isSome()) {
         res.sendStatus(400).end()
         return
       }
-      const tr: TransactionRequest = {
-        type: 'TransactionRequest',
-        transactionId: transactionId.some(),
+      const dr: DataRequest = {
+        type: 'DataRequest',
+        dataId: dataId.some(),
         requestId: requestId.some()
       }
-      insertTransaction(collection, tr)
+      insertData(collection, dr)
         .then(r => {
-          logger.info('crumbl recorded', tr) // TODO Remove in production?
+          logger.info('crumbl recorded', dr) // TODO Remove in production?
           res.sendStatus(r.result.n > 0 ? 201 : 500).end()
         })
         .catch(err => {
@@ -166,7 +157,7 @@ const recoverPubKey = async (seed: string, currentPath: string): Promise<Buffer>
   } else throw new Error('Unable to derive key')
 }
 
-const decipherCrumbl = async (collection: mongo.Collection<RequestSeed | any>, tr: TransactionRequest, crumbled: string, verificationHash: string): Promise<Maybe<string>> =>
+const decipherCrumbl = async (collection: mongo.Collection<RequestSeed | any>, tr: DataRequest, crumbled: string, verificationHash: string): Promise<Maybe<string>> =>
   collection
     .findOne({ type: 'RequestSeed', requestId: tr.requestId })
     .then(async (item: RequestSeed) => {

@@ -6,7 +6,6 @@ import config from 'config'
 import mongo from 'mongodb'
 import cors from 'cors'
 
-import BootstrapClient from './controller/BootstrapClient'
 import SignerController from './controller/SignerController'
 import { SeedPath, INITIAL_PATH, isSeedPath, generateNewSessionSeedPath } from '.'
 import { logger } from './utils/logger'
@@ -27,13 +26,9 @@ const main = async (): Promise<void> => {
   })
   const collection = connection.db(mongoDB).collection(mongoCollection)
 
-  const bootstrapUrl = config.get<string>('bootstrap.url')
-  const signerCode = config.get<string>('signer.code')
-  const bootstrapClient = BootstrapClient(bootstrapUrl, signerCode)
-
   updateSessionSeed(collection).then(done => {
     if (done) {
-      const signerController = SignerController(bootstrapClient, collection)
+      const signerController = SignerController(collection)
       const port = config.get('http.port')
       express()
         .use(helmet(), cors(), compression())
@@ -98,8 +93,7 @@ const updateSessionSeed = async (collection: mongo.Collection<SeedPath | any>): 
   return Promise.resolve(true)
 }
 
-export * from './controller/BootstrapClient'
 export * from './controller/SignerController'
+export * from './model/DataRequest'
 export * from './model/RequestSeed'
 export * from './model/SeedPath'
-export * from './model/TransactionRequest'

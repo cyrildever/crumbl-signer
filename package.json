@@ -30,7 +30,6 @@
   },
   "homepage": "https://github.com/cyrildever/crumbl-signer#readme",
   "dependencies": {
-    "axios": "^0.19.2",
     "bip32": "^2.0.5",
     "body-parser": "^1.19.0",
     "buffer-xor": "^2.0.2",

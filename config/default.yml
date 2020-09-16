@@ -11,6 +11,3 @@ mongo:
 
 bootstrap:
   url: http://localhost:3080/api
-
-signer:
-  code: defaultSignerCode # TODO Change in production // TODO Keep it???
