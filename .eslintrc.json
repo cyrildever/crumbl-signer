@@ -92,12 +92,6 @@
       "error",
       2
     ],
-    "@typescript-eslint/interface-name-prefix": [
-      2,
-      {
-        "prefixWithI": "never"
-      }
-    ],
     "@typescript-eslint/member-delimiter-style": [
       2,
       {

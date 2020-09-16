@@ -25,15 +25,14 @@ services:
     ports:
       - 4000:4000
     environment:
+      HTTP_PORT: 4000
       MONGO_USERNAME: crumbl
       MONGO_PASSWORD: crumbl
       MONGO_DOMAIN: mongodb
       MONGO_PORT: 27017
       MONGO_DB: crumbl
       MONGO_COLLECTION: signer
-      BOOTSTRAP_URL: http://localhost:3080/api
       SESSION_SEED: 5ce1dc0cc168ae51410edadad55fdf573ef257c74023f303098393357df8b911 # Change in production
-      SIGNER_CODE: defaultSignerCode # Change in production
 
 volumes:
   data-mongodb:

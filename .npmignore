@@ -3,5 +3,6 @@ node_modules
 src
 test
 .vscode
+.DS_Store
 *.tgz
 *.log
