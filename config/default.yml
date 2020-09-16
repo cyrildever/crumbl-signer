@@ -8,6 +8,3 @@ mongo:
   port: 27017
   db: crumbl
   collection: signer
-
-bootstrap:
-  url: http://localhost:3080/api

@@ -28,6 +28,13 @@ Running the application will write a 'crumbl-signer.log' file in the main folder
 #### Production
 
 Change or adapt the following environment variables every time you launch a new session if need be:
+* `HTTP_PORT`: the listening HTTP port number (default: 4000);
+* `MONGO_DOMAIN`: the MongoDB domain (default: localhost);
+* `MONGO_PORT`: the MongoDB port number (default: 27017);
+* `MONGO_DB`: the name of the MongoDB database (default: crumbl);
+* `MONGO_USERNAME`: the username to access the MongoDB database;
+* `MONGO_PASSWORD`: the user password for the MongoDB database;
+* `MONGO_COLLECTION`: the name of the collection to use (default: signer);
 * `SESSION_SEED`: the hexadecimal string representation of the initial seed.
 
 To generate a new seed for a session, you might want to use the following snippet:
@@ -54,6 +61,18 @@ It expects three mandatory HTTP headers (as only registered users should ever ca
  - `X-User-ID`: the ID of the requesting user;
  - `X-User-PubKey`: the public key of the user;
  - `X-User-Secret`: the API secret of the user.
+ eg.
+ ```http
+    GET /lastPubKey HTTP/1.1
+    X-User-ID: 123456abcdef123456abcdef123456abcdef123456abcdef
+    X-User-PubKey: yourPublicKey
+    X-User-Secret: yourAPISecret
+    User-Agent: Mozilla/4.0 (compatible; MSIE5.01; Windows NT)
+    Host: crumbl.io
+    Accept-Language: fr-FR
+    Accept-Encoding: gzip, deflate
+    Connection: Keep-Alive
+  ```
 
 It returns a `412` status code in case these HTTP headers are either missing or wrong.
 Otherwise, it returns a `200` status code along with a JSON object in the body respecting the following format:

@@ -8,6 +8,3 @@ mongo:
   port: "MONGO_PORT"
   db: "MONGO_DB"
   collection: "MONGO_COLLECTION"
-
-bootstrap:
-  url: "BOOTSTRAP_URL"
