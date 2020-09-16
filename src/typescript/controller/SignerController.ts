@@ -14,6 +14,7 @@ import {
 import { logger } from '../utils/logger'
 import { sanitizeDataId, sanitizeUUID } from '../utils/sanitize'
 import { NonEmptyString } from '../utils'
+import { userExists, User } from '../model/User'
 
 export type SignerController = Router
 
@@ -29,51 +30,66 @@ export default (collection: mongo.Collection<DataRequest | RequestSeed | SeedPat
       logger.error('All HTTP headers are mandatory')
       return res.sendStatus(412).end()
     }
-    // TODO Check existence of requesting user
-    const requestId = uuid()
-    collection.findOne({ type: 'SeedPath' }, (err, item) => {
-      if (err || !isSeedPath(item)) { // eslint-disable-line @typescript-eslint/strict-boolean-expressions
-        logger.error(err)
-        res.sendStatus(500).end()
-      } else {
-        const newPath = nextPath(item.lastPath)
-        const currentSeed = item.seed
-        updatePath(collection, newPath).then(r => {
-          if (r.result.n > 0) {
-            const rs: RequestSeed = {
-              type: 'RequestSeed',
-              requestId: requestId,
-              seed: currentSeed,
-              path: newPath
-            }
-            insertRequest(collection, rs).then(r => {
+    const user = {
+      type: 'User',
+      id: userId,
+      pubKey: userPubKey,
+      secret: userSecret
+    } as User
+    userExists(collection, user).then(exists => {
+      if (exists === true) {
+        const requestId = uuid()
+        collection.findOne({ type: 'SeedPath' }, (err, item) => {
+          if (err || !isSeedPath(item)) { // eslint-disable-line @typescript-eslint/strict-boolean-expressions
+            logger.error(err)
+            res.sendStatus(500).end()
+          } else {
+            const newPath = nextPath(item.lastPath)
+            const currentSeed = item.seed
+            updatePath(collection, newPath).then(r => {
               if (r.result.n > 0) {
-                recoverPubKey(currentSeed, newPath)
-                  .then(pubKey => {
-                    res.json({
-                      encryptionAlgorithm: crumbljs.ECIES_ALGORITHM,
-                      publicKey: pubKey.toString('hex'),
-                      requestId: requestId
-                    })
-                  }).catch(err => {
-                    logger.error(err)
-                    res.sendStatus(500).end()
-                  })
+                const rs: RequestSeed = {
+                  type: 'RequestSeed',
+                  requestId: requestId,
+                  seed: currentSeed,
+                  path: newPath
+                }
+                insertRequest(collection, rs).then(r => {
+                  if (r.result.n > 0) {
+                    recoverPubKey(currentSeed, newPath)
+                      .then(pubKey => {
+                        res.json({
+                          encryptionAlgorithm: crumbljs.ECIES_ALGORITHM,
+                          publicKey: pubKey.toString('hex'),
+                          requestId: requestId
+                        })
+                      }).catch(err => {
+                        logger.error(err)
+                        res.sendStatus(500).end()
+                      })
+                  } else {
+                    throw new Error('unable to insert request')
+                  }
+                }).catch(err => {
+                  logger.error(err)
+                  res.sendStatus(500).end()
+                })
               } else {
-                throw new Error('unable to insert request')
+                throw new Error('unable to update path')
               }
             }).catch(err => {
               logger.error(err)
               res.sendStatus(500).end()
             })
-          } else {
-            throw new Error('unable to update path')
           }
-        }).catch(err => {
-          logger.error(err)
-          res.sendStatus(500).end()
         })
+      } else {
+        logger.error(`user does not exist: {"id":"${userId}","pubKey":"${userPubKey}","secret":"${userSecret}"`) // TODO Remove in production?
+        res.sendStatus(412).end()
       }
+    }).catch(err => {
+      logger.error(err)
+      res.sendStatus(500).end()
     })
   })
 

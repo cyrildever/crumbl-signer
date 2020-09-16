@@ -1,28 +1,20 @@
+import mongo from 'mongodb'
+
+import { logger } from '../utils/logger'
+
 export interface User {
+  type: 'User'
   id: string
   pubKey: string
   secret: string
 }
 
-export interface Users {
-  add: (user: User) => void
-  exists: (user: User) => boolean
-  length: () => number
-}
+export const insertUser = (collection: mongo.Collection<User | any>, user: User): Promise<any> =>
+  collection
+    .insertOne(user)
+    .catch(err => logger.error(err))
 
-const add = (users: Array<User>) => (user: User) => {
-  if (!users.includes(user)) {
-    users.push(user)
-  }
-}
-
-const exists = (users: Array<User>) => (user: User): boolean =>
-  users.includes(user)
-
-const length = (users: Array<User>) => (): number => users.length
-
-export const Users = (users: Array<User>): Users => ({
-  add: add(users),
-  exists: exists(users),
-  length: length(users)
-})
+export const userExists = (collection: mongo.Collection<User | any>, user: User): Promise<boolean> =>
+  collection
+    .find(user).limit(1).count()
+    .then(count => count > 0)

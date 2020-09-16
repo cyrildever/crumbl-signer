@@ -85,8 +85,8 @@ Calling it is necessary to make the crumbl decipherable in time.
 It expects the request body to be a JSON object respecting the following format:
 ```json
 {
-  "requestId": "<The requestId generated through the /lastPubKey endpoint (see above)>",
-  "dataId": "<A custom ID using a hash string>"
+  "dataId": "<A custom ID using a hash string>",
+  "requestId": "<The requestId generated through the /lastPubKey endpoint (see above)>"
 }
 ```
 
