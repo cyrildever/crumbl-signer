@@ -55,12 +55,6 @@
       "never"
     ],
     "camelcase": "off",
-    "@typescript-eslint/camelcase": [
-      "error",
-      {
-        "properties": "always"
-      }
-    ],
     "@typescript-eslint/consistent-type-assertions": [
       2,
       {

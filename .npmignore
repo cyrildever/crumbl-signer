@@ -6,3 +6,5 @@ test
 .DS_Store
 *.tgz
 *.log
+cleanup
+cleanup.bat

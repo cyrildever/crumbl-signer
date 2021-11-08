@@ -47,6 +47,7 @@ export default (collection: mongo.Collection<DataRequest | RequestSeed | SeedPat
             const newPath = nextPath(item.lastPath)
             const currentSeed = item.seed
             updatePath(collection, newPath).then(r => {
+              /* eslint-disable @typescript-eslint/no-unsafe-member-access */
               if (r.result.n > 0) {
                 const rs: RequestSeed = {
                   type: 'RequestSeed',
@@ -77,6 +78,7 @@ export default (collection: mongo.Collection<DataRequest | RequestSeed | SeedPat
               } else {
                 throw new Error('unable to update path')
               }
+              /* eslint-enable @typescript-eslint/no-unsafe-member-access */
             }).catch(err => {
               logger.error(err)
               res.sendStatus(500).end()
@@ -134,6 +136,7 @@ export default (collection: mongo.Collection<DataRequest | RequestSeed | SeedPat
   /* POST crumbl. */
   router.post('/crumbl', (req, res, _) => {
     if ('dataId' in req.body && 'requestId' in req.body) {
+      /* eslint-disable @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access */
       const dataId = sanitizeDataId(req.body.dataId)
       const requestId = sanitizeUUID(req.body.requestId)
       if (!dataId.isSome() || !requestId.isSome()) {
@@ -154,6 +157,7 @@ export default (collection: mongo.Collection<DataRequest | RequestSeed | SeedPat
           logger.error(err)
           res.sendStatus(500).end()
         })
+      /* eslint-enable @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access */
     } else {
       res.sendStatus(400).end()
     }

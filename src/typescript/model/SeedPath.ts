@@ -10,7 +10,7 @@ export interface SeedPath {
 }
 
 export const isSeedPath = (object: any): object is SeedPath =>
-  'lastPath' in object && object.type === 'SeedPath'
+  'lastPath' in object && object.type === 'SeedPath' // eslint-disable-line @typescript-eslint/no-unsafe-member-access
 
 export const nextPath = (path: string): string => {
   const [m, account, scope, keyIndex] = path.split('/')

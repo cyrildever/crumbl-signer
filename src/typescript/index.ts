@@ -3,12 +3,14 @@ import helmet from 'helmet'
 import compression from 'compression'
 import bodyParser from 'body-parser'
 import config from 'config'
-import mongo from 'mongodb'
+import mongo, { Collection } from 'mongodb'
 import cors from 'cors'
 
 import SignerController from './controller/SignerController'
 import { SeedPath, INITIAL_PATH, isSeedPath, generateNewSessionSeedPath } from '.'
 import { logger } from './utils/logger'
+import { DataRequest } from './model/DataRequest'
+import { RequestSeed } from './model/RequestSeed'
 
 const main = async (): Promise<void> => {
   logger.info('Starting signer server...')
@@ -24,7 +26,7 @@ const main = async (): Promise<void> => {
     useNewUrlParser: true,
     useUnifiedTopology: true
   })
-  const collection = connection.db(mongoDB).collection(mongoCollection)
+  const collection: Collection<SeedPath | DataRequest | RequestSeed> = connection.db(mongoDB).collection(mongoCollection)
 
   updateSessionSeed(collection).then(done => {
     if (done) {
@@ -44,7 +46,7 @@ const main = async (): Promise<void> => {
         })
         .use('/', signerController)
         .listen(port, () =>
-          logger.info(`Listening at http://localhost:${port}/`)
+          logger.info(`Listening at http://localhost:${port}/`) // eslint-disable-line @typescript-eslint/restrict-template-expressions
         )
     } else {
       throw new Error('unable to update session seed')
@@ -65,7 +67,7 @@ const updateSessionSeed = async (collection: mongo.Collection<SeedPath | any>): 
     seed = generateNewSessionSeedPath().seed
   }
   let update = false
-  const existing = await collection.findOne({ type: 'SeedPath' })
+  const existing = await collection.findOne({ type: 'SeedPath' }) // eslint-disable-line @typescript-eslint/no-unsafe-assignment
   if (existing && isSeedPath(existing)) { // eslint-disable-line @typescript-eslint/strict-boolean-expressions
     if (existing.seed !== seed) {
       update = true
