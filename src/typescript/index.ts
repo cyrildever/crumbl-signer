@@ -1,7 +1,6 @@
 import express from 'express'
 import helmet from 'helmet'
 import compression from 'compression'
-import bodyParser from 'body-parser'
 import config from 'config'
 import mongo, { Collection } from 'mongodb'
 import cors from 'cors'
@@ -34,8 +33,8 @@ const main = async (): Promise<void> => {
       const port = config.get('http.port')
       express()
         .use(helmet(), cors(), compression())
-        .use(bodyParser.urlencoded({ extended: true }))
-        .use(bodyParser.json())
+        .use(express.urlencoded({ extended: true }))
+        .use(express.json())
         .use((req, _, next) => {
           let url = req.originalUrl
           if (url.length > 128) {
