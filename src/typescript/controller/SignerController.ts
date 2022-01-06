@@ -2,7 +2,8 @@ import express, { Router } from 'express'
 import mongo from 'mongodb'
 import { Maybe, None } from 'monet'
 import { uuid } from 'uuidv4'
-import * as bip32 from 'bip32'
+import BIP32Factory from 'bip32'
+import * as ecc from 'tiny-secp256k1'
 import * as crumbljs from 'crumbl-js'
 import * as ecies from 'ecies-geth'
 
@@ -169,6 +170,8 @@ export default (collection: mongo.Collection<DataRequest | RequestSeed | SeedPat
 
   return router
 }
+
+const bip32 = BIP32Factory(ecc) // eslint-disable-line @typescript-eslint/no-unsafe-argument
 
 const recoverPubKey = async (seed: string, currentPath: string): Promise<Buffer> => {
   const keyPair = bip32.fromSeed(Buffer.from(seed, 'hex')).derivePath(currentPath)

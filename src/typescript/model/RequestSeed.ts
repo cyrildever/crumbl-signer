@@ -1,6 +1,7 @@
 import mongo from 'mongodb'
 import { Maybe, None, Some } from 'monet'
-import * as bip32 from 'bip32'
+import BIP32Factory from 'bip32'
+import * as ecc from 'tiny-secp256k1'
 import * as crumbljs from 'crumbl-js'
 
 import { logger } from '../utils/logger'
@@ -16,6 +17,8 @@ export const insertRequest = (collection: mongo.Collection<RequestSeed | any>, r
   collection
     .insertOne(rs)
     .catch(err => logger.error(err))
+
+const bip32 = BIP32Factory(ecc) // eslint-disable-line @typescript-eslint/no-unsafe-argument
 
 export const doDecipher = async (rs: RequestSeed, crumbled: string, verificationHash: string): Promise<Maybe<string>> => {
   const keyPair = bip32.fromSeed(Buffer.from(rs.seed, 'hex')).derivePath(rs.path)

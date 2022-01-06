@@ -2,7 +2,7 @@ import express from 'express'
 import helmet from 'helmet'
 import compression from 'compression'
 import config from 'config'
-import mongo, { Collection } from 'mongodb'
+import { Collection, MongoClient } from 'mongodb'
 import cors from 'cors'
 
 import SignerController from './controller/SignerController'
@@ -21,10 +21,7 @@ const main = async (): Promise<void> => {
   const mongoDB = config.get<string>('mongo.db')
   const mongoCollection = config.get<string>('mongo.collection')
   const url = `mongodb://${mongoUserName}:${mongoPassword}@${mongoDomain}:${mongoPort}`
-  const connection = await mongo.connect(url, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  })
+  const connection = await MongoClient.connect(url)
   const collection: Collection<SeedPath | DataRequest | RequestSeed> = connection.db(mongoDB).collection(mongoCollection)
 
   updateSessionSeed(collection).then(done => {
@@ -60,7 +57,7 @@ main().catch(err => logger.fatal(err))
  * 
  * @param collection the `signer` collection to use
  */
-const updateSessionSeed = async (collection: mongo.Collection<SeedPath | any>): Promise<boolean> => {
+const updateSessionSeed = async (collection: Collection<SeedPath | any>): Promise<boolean> => {
   let seed = process.env.SESSION_SEED
   if (seed === undefined || seed === '') {
     seed = generateNewSessionSeedPath().seed
@@ -83,9 +80,7 @@ const updateSessionSeed = async (collection: mongo.Collection<SeedPath | any>): 
         seed: seed
       }
     }, { upsert: true })
-      .then(r => {
-        return r.result.n > 0
-      })
+      .then(r => r.upsertedCount === 1 || r.modifiedCount === 1)
       .catch(err => {
         logger.error(err)
         return false
