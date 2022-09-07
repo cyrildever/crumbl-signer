@@ -118,7 +118,7 @@ As usual, all endpoints return a `500` status code if an error occurred on the s
 ### License
 
 The use of the crumbl-signer server is subject to fees for commercial purpose and to the respect of the [BSD2-Clause-Patent license](LICENSE).
-Please [contact me](mailto:cdever@edgewhere.fr) to get further information.
+Please [contact me](mailto:cdever@pep-s.com) to get further information.
 
 
 <hr />
