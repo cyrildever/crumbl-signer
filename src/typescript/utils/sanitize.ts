@@ -1,4 +1,4 @@
-import { Maybe, None, Some } from 'monet'
+import { Maybe, None, Some } from 'ts-utls'
 
 const hashStringRegex = new RegExp('^[0-9a-f]{64}$')
 const uuidRegex = new RegExp('^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')

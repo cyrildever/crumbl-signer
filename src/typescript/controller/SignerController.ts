@@ -1,6 +1,6 @@
 import express, { Router } from 'express'
 import mongo from 'mongodb'
-import { Maybe, None } from 'monet'
+import { Maybe, None } from 'ts-utls'
 import { uuid } from 'uuidv4'
 import BIP32Factory from 'bip32'
 import * as ecc from 'tiny-secp256k1'

@@ -1,5 +1,5 @@
 import mongo from 'mongodb'
-import { Maybe, None, Some } from 'monet'
+import { Maybe, None, Some } from 'ts-utls'
 import BIP32Factory from 'bip32'
 import * as ecc from 'tiny-secp256k1'
 import * as crumbljs from 'crumbl-js'
