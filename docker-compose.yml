@@ -2,7 +2,7 @@ version: '3.7'
 services:
 
   mongodb:
-    image: mongo:4.4
+    image: mongo:latest
     hostname: mongodb
     container_name: mongodb
     restart: always
@@ -10,17 +10,17 @@ services:
       - 27017:27017
     volumes:
       - data-mongodb:/data/db
-    environment: 
+    environment:
       MONGO_INITDB_ROOT_USERNAME: crumbl
       MONGO_INITDB_ROOT_PASSWORD: crumbl
       MONGO_INITDB_DATABASE: crumbl
-  
+
   web:
     build: .
     restart: always
     hostname: signer-api
     container_name: signer-api
-    depends_on: 
+    depends_on:
       - mongodb
     ports:
       - 4000:4000

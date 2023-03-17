@@ -40,10 +40,10 @@ export default (collection: mongo.Collection<DataRequest | RequestSeed | SeedPat
     userExists(collection, user).then(exists => {
       if (exists === true) {
         const requestId = uuid()
-        collection.findOne({ type: 'SeedPath' }, (err, item) => {
-          if (err || !isSeedPath(item)) { // eslint-disable-line @typescript-eslint/strict-boolean-expressions
-            logger.error(err)
-            res.sendStatus(500).end()
+        collection.findOne({ type: 'SeedPath' }).then(item => {
+          if (!isSeedPath(item)) {
+            logger.error(new Error('item is not a SeedPath'))
+            res.sendStatus(412).end()
           } else {
             const newPath = nextPath(item.lastPath)
             const currentSeed = item.seed
@@ -85,6 +85,9 @@ export default (collection: mongo.Collection<DataRequest | RequestSeed | SeedPat
               res.sendStatus(500).end()
             })
           }
+        }).catch(err => {
+          logger.error(err)
+          res.sendStatus(500).end()
         })
       } else {
         logger.error(`user does not exist: {"id":"${userId}","pubKey":"${userPubKey}","secret":"${userSecret}"`) // TODO Remove in production?
