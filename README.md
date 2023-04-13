@@ -9,7 +9,6 @@ _Easy signer server for the Crumbl&trade; platform_
 
 This application is an easy signer server for the Crumbl&trade; platform patented by Cyril Dever.
 
-
 ### Usage
 
 1. Either you have set your own MongoDB environment compatible with the `crumbl-signer`'s requirements:
@@ -117,7 +116,7 @@ As usual, all endpoints return a `500` status code if an error occurred on the s
 
 ### License
 
-The use of the crumbl-signer server is subject to fees for commercial purpose and to the respect of the [BSD2-Clause-Patent license](LICENSE).
+The use of the crumbl-signer server is subject to fees for commercial purpose and to the respect of the [BSD2-Clause-Patent license](LICENSE). \
 Please [contact me](mailto:cdever@pep-s.com) to get further information.
 
 
