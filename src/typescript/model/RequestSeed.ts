@@ -13,6 +13,7 @@ export interface RequestSeed {
   seed: string
 }
 
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 export const insertRequest = (collection: mongo.Collection<RequestSeed | any>, rs: RequestSeed): Promise<any> =>
   collection
     .insertOne(rs)

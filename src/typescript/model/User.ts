@@ -9,11 +9,13 @@ export interface User {
   secret: string
 }
 
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 export const insertUser = (collection: mongo.Collection<User | any>, user: User): Promise<any> =>
   collection
     .insertOne(user)
     .catch(err => logger.error(err))
 
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 export const userExists = (collection: mongo.Collection<User | any>, user: User): Promise<boolean> =>
   collection
     .find(user).limit(1).count()

@@ -18,11 +18,13 @@ export const nextPath = (path: string): string => {
   return `${m}/${account}/${scope}/${nextKeyIndex}`
 }
 
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 export const updatePath = (collection: mongo.Collection<SeedPath | any>, path: string): Promise<any> =>
   collection
     .updateOne({ type: 'SeedPath' }, { $set: { lastPath: path } }, { upsert: true })
     .catch(err => logger.error(err))
 
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 export const updateSeed = (collection: mongo.Collection<SeedPath | any>, seed: Buffer): Promise<any> =>
   collection
     .updateOne({ type: 'SeedPath' }, { $set: { seed: seed.toString('hex') } }, { upsert: true })

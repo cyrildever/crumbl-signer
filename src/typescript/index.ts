@@ -57,7 +57,7 @@ main().catch(err => logger.fatal(err))
  * 
  * @param collection the `signer` collection to use
  */
-const updateSessionSeed = async (collection: Collection<SeedPath | any>): Promise<boolean> => {
+const updateSessionSeed = async (collection: Collection<SeedPath | any>): Promise<boolean> => { // eslint-disable-line @typescript-eslint/no-redundant-type-constituents
   let seed = process.env.SESSION_SEED
   if (seed === undefined || seed === '') {
     seed = generateNewSessionSeedPath().seed

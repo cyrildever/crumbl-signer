@@ -183,6 +183,7 @@ const recoverPubKey = async (seed: string, currentPath: string): Promise<Buffer>
   } else throw new Error('Unable to derive key')
 }
 
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 const decipherCrumbl = async (collection: mongo.Collection<RequestSeed | any>, tr: DataRequest, crumbled: string, verificationHash: string): Promise<Maybe<string>> =>
   collection
     .findOne({ type: 'RequestSeed', requestId: tr.requestId })

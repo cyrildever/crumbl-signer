@@ -8,6 +8,7 @@ export interface DataRequest {
   requestId: string
 }
 
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 export const insertData = (collection: mongo.Collection<DataRequest | any>, dr: DataRequest): Promise<any> =>
   collection
     .insertOne(dr)
