@@ -8,3 +8,5 @@ test
 *.log
 cleanup
 cleanup.bat
+docker-compose.yml
+Dockerfile
