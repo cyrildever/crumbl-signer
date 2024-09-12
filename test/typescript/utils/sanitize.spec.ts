@@ -4,6 +4,7 @@ chai.should()
 
 import { sanitizeUUID, sanitizeDataId } from '../../../src/typescript/utils/sanitize'
 
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('sanitizeDataId', () => {
   it('should return some string only if it is an appropriate 32-byte hash string', () => {
     const expected = 'a028d39860205482aff35ee942f3a43f49985a2b84b9a844617c6b86ac98c96d'
@@ -32,3 +33,4 @@ describe('sanitizeUUID', () => {
     found.isSome().should.be.false
   })
 })
+/* eslint-enable @typescript-eslint/no-unused-expressions */
