@@ -1,7 +1,7 @@
 {
   "name": "crumbl-signer",
   "description": "Signer server for the Crumbl platform",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "main": "dist/src/typescript/index.js",
   "types": "dist/src/typescript/index.d.ts",
   "scripts": {
@@ -52,6 +52,7 @@
   "peerDependencies": {
     "blakejs": "^1.2.1",
     "keccak": "^3.0.4",
+    "path-to-regexp": "^0.1.11",
     "sha3": "^2.1.4"
   },
   "devDependencies": {
