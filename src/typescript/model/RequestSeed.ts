@@ -19,13 +19,13 @@ export const insertRequest = (collection: mongo.Collection<RequestSeed | any>, r
     .insertOne(rs)
     .catch(err => logger.error(err))
 
-const bip32 = BIP32Factory(ecc) // eslint-disable-line @typescript-eslint/no-unsafe-argument
+const bip32 = BIP32Factory(ecc)
 
 export const doDecipher = async (rs: RequestSeed, crumbled: string, verificationHash: string): Promise<Maybe<string>> => {
   const keyPair = bip32.fromSeed(Buffer.from(rs.seed, 'hex')).derivePath(rs.path)
   const signer = {
     encryptionAlgorithm: crumbljs.ECIES_ALGORITHM,
-    privateKey: keyPair.privateKey
+    privateKey: keyPair.privateKey as Buffer
   }
   const crumblExtractor = new crumbljs.BrowserWorker({
     mode: crumbljs.EXTRACTION,

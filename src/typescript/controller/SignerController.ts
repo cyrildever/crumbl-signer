@@ -174,12 +174,12 @@ export default (collection: mongo.Collection<DataRequest | RequestSeed | SeedPat
   return router
 }
 
-const bip32 = BIP32Factory(ecc) // eslint-disable-line @typescript-eslint/no-unsafe-argument
+const bip32 = BIP32Factory(ecc)
 
 const recoverPubKey = async (seed: string, currentPath: string): Promise<Buffer> => {
   const keyPair = bip32.fromSeed(Buffer.from(seed, 'hex')).derivePath(currentPath)
   if (keyPair.privateKey !== undefined) {
-    return ecies.getPublic(keyPair.privateKey)
+    return ecies.getPublic(keyPair.privateKey as Buffer)
   } else throw new Error('Unable to derive key')
 }
 
